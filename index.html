@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BSMLH</title>
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<div id="splash">
+  <div class="s-title">BSMLH</div>
+  <div class="s-sub">BIOMETRIC SECURITY MULTIFUNCTION LEDGER FOR HUMANITY</div>
+</div>
+
+<div id="scr-reg" class="screen active">
+  <div class="globe-wrap" onclick="toggleLang(event)">
+    <div style="font-size:30px">🌐</div>
+    <div id="l-menu" class="lang-menu">
+      <div onclick="setLang('RU')">Русский</div>
+      <div onclick="setLang('EN')">English</div>
+      <div onclick="setLang('KZ')">Қазақша</div>
+    </div>
+  </div>
+  <h2 id="reg-t" style="margin-top:80px;margin-bottom:20px">РЕГИСТРАЦИЯ</h2>
+  <input type="text" id="in-f" placeholder="ИМЯ" style="background:#111;border:1px solid #333;padding:16px;color:#fff;border-radius:12px;width:300px;margin-bottom:15px;outline:none;font-size:15px">
+  <button class="btn-m" onclick="startCam()">ДАЛЕЕ</button>
+</div>
+
+<div id="scr-scan" class="screen">
+  <p style="color:#888;font-size:13px;margin-top:50px;margin-bottom:14px">Сканирование биометрии</p>
+  <video id="video-feed" autoplay playsinline></video>
+  <button class="btn-m" style="margin-top:25px" onclick="takePhoto()">СКАНИРОВАТЬ</button>
+  <canvas id="photo-canvas" style="display:none"></canvas>
+</div>
+
+<div id="scr-chip" class="screen">
+  <div class="screen-inner" style="display:flex;flex-direction:column;align-items:center;width:100%;margin-top:40px">
+    <p style="color:#888;font-size:12px;margin-bottom:16px;letter-spacing:1px;text-transform:uppercase">Поднесите BSMLH CHIP</p>
+    <div class="ring-scan-wrap">
+      <img src="chip.png" class="ring-img" alt="BSMLH CHIP">
+      <div class="scan-frame">
+        <div class="scan-beam" id="reg-beam"></div>
+      </div>
+    </div>
+    <div id="chip-status"></div>
+    <button class="btn-m" id="chip-btn" onclick="activateChip()">АКТИВИРОВАТЬ ЧИП</button>
+    <button class="btn-skip" onclick="showSMS()">Войти без чипа →</button>
+  </div>
+</div>
+
+<div id="scr-sms" class="screen">
+  <div class="sms-box" id="sms-step1">
+    <h3>Верификация</h3>
+    <p>Введите номер телефона для входа без чипа</p>
+    <input type="tel" id="sms-phone" class="inp-dark" placeholder="+7 (___) ___-__-__">
+    <button class="btn-m" onclick="sendSMS()">ПОЛУЧИТЬ КОД</button>
+  </div>
+  <div class="sms-box" id="sms-step2" style="display:none">
+    <h3>Введите код</h3>
+    <p>Код отправлен на ваш номер</p>
+    <input type="number" id="sms-code" class="inp-dark" placeholder="_ _ _ _" maxlength="4">
+    <button class="btn-m" onclick="verifySMS()">ПОДТВЕРДИТЬ</button>
+    <div class="sms-hint">Демо код: <b style="color:var(--gold)">1234</b></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="content">
+    <div id="view-chat"></div>
+    <div id="view-maps" style="display:none;height:100%">
+      <iframe src="https://maps.google.com/maps?output=embed" style="width:100%;height:100%;border:0" loading="lazy"></iframe>
+    </div>
+    <div id="view-hub" style="display:none" class="hub-wrap">
+      <div class="patent-tile" onclick="P('pg-pat')">🛠 ПАТЕНТНАЯ МАСТЕРСКАЯ</div>
+      <div class="hub-grid">
+        <div class="hub-tile" onclick="P('modal-apps')">💻 Apps</div>
+        <div class="hub-tile" onclick="startQRScan()">🔍 Scan QR</div>
+        <div class="hub-tile" onclick="P('pg-svc')">💳 Services</div>
+        <div class="hub-tile" onclick="T('🚧 Скоро')">🌐 Web3</div>
+      </div>
+    </div>
+    <div id="view-prof" style="display:none">
+      <div class="wc-header">
+        <img id="user-photo" src="https://via.placeholder.com/64/eee/999?text=+" alt="">
+        <div class="u-info">
+          <h2 id="u-name">Пользователь</h2>
+          <div class="huid" id="u-huid">BSMLH-2026-················</div>
+          <span class="v">✓ Верифицирован</span>
+        </div>
+        <div class="qr-icon-btn" onclick="P('modal-qr')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/>
+            <rect x="19" y="14" width="2" height="2"/><rect x="14" y="19" width="2" height="2"/>
+            <rect x="18" y="18" width="3" height="3"/>
+          </svg>
+        </div>
+      </div>
+      <div class="token-row">
+        <div class="token-card" onclick="P('pg-wal')"><div class="tl">QRT</div><div class="tv gold" id="m-qrt">0.01</div></div>
+        <div class="token-card" onclick="P('pg-wal')"><div class="tl">QRNC</div><div class="tv gr" id="m-qrnc">0</div><div class="ts" id="m-tier">⚪ Новый</div></div>
+      </div>
+      <div class="wc-group"><div class="wc-item" onclick="P('pg-svc')"><span class="wc-icon">💳</span><span class="wc-text">Services</span><span class="wc-arrow">›</span></div></div>
+      <div class="wc-group">
+        <div class="wc-item" onclick="P('pg-fav')"><span class="wc-icon">📦</span><span class="wc-text">Favorites</span><span class="wc-arrow">›</span></div>
+        <div class="wc-item" onclick="P('pg-mom')"><span class="wc-icon">🖼️</span><span class="wc-text">Moments</span><span class="wc-arrow">›</span></div>
+        <div class="wc-item" onclick="P('pg-card')"><span class="wc-icon">🧧</span><span class="wc-text">Cards & Offers</span><span class="wc-val" id="c-mini">0.01 QRT</span><span class="wc-arrow">›</span></div>
+        <div class="wc-item" onclick="P('pg-stk')"><span class="wc-icon">😀</span><span class="wc-text">Stickers</span><span class="wc-arrow">›</span></div>
+      </div>
+      <div class="wc-group"><div class="wc-item" onclick="P('pg-set')"><span class="wc-icon">⚙️</span><span class="wc-text">Settings</span><span class="wc-arrow">›</span></div></div>
+    </div>
+  </div>
+  <footer>
+    <div class="n-btn on" id="n-chat" onclick="tab('chat','BSMLH')"><span>💬</span>CHAT</div>
+    <div class="n-btn" id="n-maps" onclick="tab('maps','Maps')"><span>🗺️</span>MAPS</div>
+    <div class="n-btn" id="n-hub" onclick="tab('hub','HUB')"><span>⚡</span>HUB</div>
+    <div class="n-btn" id="n-prof" onclick="tab('prof','Профиль')"><span>👤</span>PROFILE</div>
+  </footer>
+</div>
+
+<div id="pg-svc" class="pg"><div class="pgh"><span class="bk" onclick="C('pg-svc')">‹</span>Services</div><div class="pgb">
+<div class="svc-grid">
+  <div class="svc-item" onclick="T('💸 Платёж')"><div class="svc-ico" style="background:#e8f5e9">💸</div><span>Отправить</span></div>
+  <div class="svc-item" onclick="P('modal-qr')"><div class="svc-ico" style="background:#e3f2fd">📲</div><span>Получить</span></div>
+  <div class="svc-item" onclick="P('pg-pat')"><div class="svc-ico" style="background:#fff8e1">🛠️</div><span>Патент</span></div>
+  <div class="svc-item" onclick="P('pg-fund')"><div class="svc-ico" style="background:#f3e5f5">🌱</div><span>Фонд</span></div>
+  <div class="svc-item" onclick="P('pg-wal')"><div class="svc-ico" style="background:#e0f7fa">💰</div><span>Кошелёк</span></div>
+  <div class="svc-item" onclick="T('🔄 Обмен')"><div class="svc-ico" style="background:#e8eaf6">🔄</div><span>Обмен</span></div>
+  <div class="svc-item" onclick="T('📊 История')"><div class="svc-ico" style="background:#fce4ec">📊</div><span>История</span></div>
+  <div class="svc-item" onclick="T('🚧 Скоро')"><div class="svc-ico" style="background:#f5f5f5">➕</div><span>Ещё</span></div>
+</div>
+</div></div>
+
+<div id="pg-fav" class="pg"><div class="pgh"><span class="bk" onclick="C('pg-fav')">‹</span>Favorites</div><div class="pgb">
+  <div class="offer-item" onclick="P('pg-pat')">🛠️<div><b>Патентная мастерская</b><p>Зафиксируй изобретение</p></div></div>
+  <div class="offer-item" onclick="P('pg-fund')">🌱<div><b>Humanity Fund</b><p>Твой вклад в будущее</p></div></div>
+  <div class="offer-item" onclick="P('pg-wal')">💰<div><b>Кошелёк QRT</b><p>Баланс и история</p></div></div>
+</div></div>
+
+<div id="pg-mom" class="pg"><div class="pgh"><span class="bk" onclick="C('pg-mom')">‹</span>Moments</div><div class="pgb">
+  <div style="background:#fff;border-radius:12px;margin-bottom:12px;overflow:hidden">
+    <div style="display:flex;align-items:center;padding:12px 15px;gap:10px"><div style="width:38px;height:38px;border-radius:8px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:20px">🤖</div><div><b>Alex Chen</b><p style="font-size:11px;color:#aaa">2 часа назад</p></div></div>
+    <div style="height:150px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:48px">🌿</div>
+    <div style="padding:10px 15px;font-size:14px;color:#333">Зафиксировал изобретение! #BSMLH</div>
+    <div style="display:flex;gap:18px;padding:10px 15px;border-top:0.5px solid #eee">
+      <span style="font-size:13px;color:#888;cursor:pointer" onclick="T('❤️ Лайк')">❤️ 24</span>
+      <span style="font-size:13px;color:#888;cursor:pointer" onclick="T('💬')">💬 5</span>
+      <span style="font-size:13px;color:#888;cursor:pointer" onclick="T('🔗')">🔗</span>
+    </div>
+  </div>
+  <div style="background:#fff;border-radius:12px;overflow:hidden">
+    <div style="display:flex;align-items:center;padding:12px 15px;gap:10px"><div style="width:38px;height:38px;border-radius:8px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:20px">🌙</div><div><b>Ahmed</b><p style="font-size:11px;color:#aaa">5 часов назад</p></div></div>
+    <div style="height:150px;background:linear-gradient(135deg,#f6851b,#ff4500);display:flex;align-items:center;justify-content:center;font-size:48px">💡</div>
+    <div style="padding:10px 15px;font-size:14px;color:#333">+50 QRT за открытую науку! #HumanityFund</div>
+    <div style="display:flex;gap:18px;padding:10px 15px;border-top:0.5px solid #eee">
+      <span style="font-size:13px;color:#888;cursor:pointer" onclick="T('❤️')">❤️ 87</span>
+      <span style="font-size:13px;color:#888;cursor:pointer" onclick="T('💬')">💬 12</span>
+      <span style="font-size:13px;color:#888;cursor:pointer" onclick="T('🔗')">🔗</span>
+    </div>
+  </div>
+</div></div>
+
+<div id="pg-card" class="pg"><div class="pgh"><span class="bk" onclick="C('pg-card')">‹</span>Cards & Offers</div><div class="pgb">
+  <div class="ring-card">
+
+```
+<div class="ring-card-info">
+  <div class="rc-label">BSMLH CARD</div>
+  <div class="rc-name" id="c-name">Пользователь</div>
+  <div class="rc-huid" id="c-huid-card">BSMLH-2026-················</div>
+  <div class="rc-bal-label">QRT БАЛАНС</div>
+  <div class="rc-bal" id="c-bal">0.01</div>
+</div>
+```
+
+  </div>
+  <div class="offer-item" onclick="T('🎁 Активировано!')">🎁<div><b>Бонус за первое изобретение</b><p>+10 QRT при фиксации L2</p></div></div>
+  <div class="offer-item" onclick="T('🤝 Ссылка скопирована')">🤝<div><b>Пригласи друга</b><p>+3 QRT за реферала</p></div></div>
+</div></div>
+
+<div id="pg-stk" class="pg"><div class="pgh"><span class="bk" onclick="C('pg-stk')">‹</span>Stickers</div><div class="pgb">
+  <div class="stk-title">BSMLH ORIGINAL</div>
+  <div class="stk-grid"><div onclick="T('🛡️')">🛡️</div><div onclick="T('💡')">💡</div><div onclick="T('🌱')">🌱</div><div onclick="T('🔐')">🔐</div><div onclick="T('⚡')">⚡</div><div onclick="T('🌍')">🌍</div><div onclick="T('🏆')">🏆</div><div onclick="T('🤝')">🤝</div></div>
+  <div class="stk-title">УРОВНИ РЕПУТАЦИИ</div>
+  <div class="stk-grid"><div onclick="T('⚪ Новый')">⚪</div><div onclick="T('🟢 Активный')">🟢</div><div onclick="T('🔵 Надёжный')">🔵</div><div onclick="T('🟣 Доверенный')">🟣</div><div onclick="T('⭐ Легенда')">⭐</div><div onclick="T('👑 Основатель')">👑</div><div onclick="T('🧬 Верифицирован')">🧬</div><div onclick="T('💎 VIP')">💎</div></div>
+</div></div>
+
+<div id="pg-set" class="pg"><div class="pgh"><span class="bk" onclick="C('pg-set')">‹</span>Settings</div><div class="pgb" style="padding:0">
+  <div class="set-prof" onclick="T('✏️ Редактирование профиля')">
+    <div class="set-av" id="set-av">👤</div>
+    <div><div id="set-name" style="font-size:17px;font-weight:500">Пользователь</div><div id="set-huid" style="font-size:11px;color:#888;font-family:monospace">BSMLH-2026-················</div></div>
+    <span style="color:#ccc;margin-left:auto">›</span>
+  </div>
+  <div style="padding:15px">
+    <div class="wc-group" style="border-radius:12px;overflow:hidden">
+      <div class="wc-item" onclick="tDark()"><span class="wc-icon">🌙</span><span class="wc-text">Тёмная тема</span><span class="wc-val" id="dark-v">Выкл</span><span class="wc-arrow">›</span></div>
+      <div class="wc-item" onclick="T('🔔 Уведомления')"><span class="wc-icon">🔔</span><span class="wc-text">Уведомления</span><span class="wc-arrow">›</span></div>
+      <div class="wc-item" onclick="T('🌐 Язык')"><span class="wc-icon">🌐</span><span class="wc-text">Язык</span><span class="wc-val">Русский</span><span class="wc-arrow">›</span></div>
+    </div>
+    <div class="wc-group" style="border-radius:12px;overflow:hidden;margin-top:8px">
+      <div class="wc-item" onclick="T('🔒 Безопасность')"><span class="wc-icon">🔒</span><span class="wc-text">Безопасность</span><span class="wc-arrow">›</span></div>
+      <div class="wc-item" onclick="P('modal-chip-info')">
+        <span class="wc-icon">💍</span><span class="wc-text">BSMLH CHIP</span>
+        <span class="wc-val" id="chip-status-set">Не активен</span><span class="wc-arrow">›</span>
+      </div>
+    </div>
+    <div class="wc-group" style="border-radius:12px;overflow:hidden;margin-top:8px">
+      <div class="wc-item" onclick="T('BSMLH v11 | ALAI CORPORATION')"><span class="wc-icon">ℹ️</span><span class="wc-text">О приложении</span><span class="wc-val">v11.0</span><span class="wc-arrow">›</span></div>
+    </div>
+    <div style="text-align:center;padding:24px">
+      <button class="btn-exit" onclick="exitApp()">Выйти</button>
+    </div>
+  </div>
+</div></div>
+
+<div id="pg-pat" class="pg"><div class="pgh"><span class="bk" onclick="C('pg-pat')">‹</span>🛠 Патентная мастерская</div><div class="pgb">
+  <div id="inv-list"></div>
+  <div class="form-card">
+    <h3>+ Новое изобретение</h3>
+    <select id="inv-niche" class="fi">
+      <option value="">Выберите нишу...</option>
+      <option value="IT">💻 Информационные технологии</option>
+      <option value="MED">🏥 Медицина и здоровье</option>
+      <option value="AGR">🌾 Сельское хозяйство</option>
+      <option value="ENE">⚡ Энергетика</option>
+      <option value="TRN">🚗 Транспорт</option>
+      <option value="ECO">🌍 Экология</option>
+      <option value="EDU">📚 Образование</option>
+      <option value="FIN">💰 Финансы</option>
+      <option value="OTH">🔧 Другое</option>
+    </select>
+    <input id="inv-t" class="fi" placeholder="Название изобретения">
+    <textarea id="inv-d" class="fi" placeholder="Описание изобретения — что делает, как работает, в чём уникальность..."></textarea>
+    <div style="font-size:12px;color:#888;margin-bottom:10px">Уровень защиты:</div>
+    <div class="lr">
+      <div class="lv s" id="lv1" onclick="slv(1)"><b>L1</b><small>Timestamp</small><div class="price">$0.99</div></div>
+      <div class="lv" id="lv2" onclick="slv(2)"><b>L2</b><small>Prior Art</small><div class="price">$9.99</div></div>
+      <div class="lv" id="lv3" onclick="slv(3)"><b>L3</b><small>Certificate</small><div class="price">$49.99</div></div>
+    </div>
+    <button class="bd" onclick="tryFixInv()">💍 ПРИЛОЖИТЬ ЧИП И ЗАФИКСИРОВАТЬ</button>
+  </div>
+</div></div>
+
+<div id="pg-wal" class="pg"><div class="pgh"><span class="bk" onclick="C('pg-wal')">‹</span>💰 QRT Кошелёк</div><div class="pgb">
+  <div class="qrt-card">
+    <div class="ql">QRT БАЛАНС</div>
+    <div class="qa" id="w-qrt">0.01</div>
+    <div style="font-size:12px;color:#555;margin-top:3px">Quantum Reward Token</div>
+  </div>
+  <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;font-size:14px;color:#000">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px">QRNC Репутация<b id="w-qrnc">0</b></div>
+    <div class="bar-track"><div class="bar-fill" id="qrnc-bar" style="width:0%"></div></div>
+  </div>
+  <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px">
+    <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:#000">Пополнить баланс</div>
+    <div class="pay-grid">
+      <a href="https://stripe.com" target="_blank" class="pay-btn"><span>💳</span>Visa/MC</a>
+      <a href="https://paypal.com" target="_blank" class="pay-btn"><span>🅿️</span>PayPal</a>
+      <a href="https://coinbase.com" target="_blank" class="pay-btn"><span>₿</span>Crypto</a>
+      <a href="https://pay.google.com" target="_blank" class="pay-btn"><span>G</span>G.Pay</a>
+      <a href="https://apple.com/apple-pay" target="_blank" class="pay-btn"><span>🍎</span>Apple Pay</a>
+      <a href="https://westernunion.com" target="_blank" class="pay-btn"><span>🌐</span>W.Union</a>
+    </div>
+  </div>
+  <div style="background:#fff;border-radius:12px;padding:14px">
+    <h4 style="font-size:14px;margin-bottom:10px;color:#000">История</h4>
+    <div id="hist-list"><div class="hist-row"><span>✅ Чип активирован</span><span class="gr">+0.01 QRT</span></div></div>
+  </div>
+</div></div>
+
+<div id="pg-fund" class="pg"><div class="pgh"><span class="bk" onclick="C('pg-fund')">‹</span>🌱 Humanity Fund</div><div class="pgb">
+  <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;text-align:center">
+    <div style="font-size:28px;margin-bottom:8px">🌍</div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:6px;color:#000">Твой вклад в будущее</div>
+    <div style="font-size:12px;color:#888">Каждое действие фиксируется в BSMLH и приносит QRNC репутацию</div>
+  </div>
+  <div class="fund-item" onclick="doFund('🌱 Посадил дерево! +5 QRNC')">
+    <div class="fund-ico">🌱</div><div><h4>Посадить дерево</h4><p>Озеленение планеты</p><div class="qrt-reward">+5 QRNC</div></div>
+  </div>
+  <div class="fund-item" onclick="doFund('🤝 Сделал доброе дело! +3 QRNC')">
+    <div class="fund-ico">🤝</div><div><h4>Сделать добро</h4><p>Помочь ближнему</p><div class="qrt-reward">+3 QRNC</div></div>
+  </div>
+  <div class="fund-item" onclick="doFund('📚 Оставил знание! +8 QRNC')">
+    <div class="fund-ico">📚</div><div><h4>Оставить знание</h4><p>Поделиться опытом и знаниями</p><div class="qrt-reward">+8 QRNC</div></div>
+  </div>
+  <div class="fund-item" onclick="doFund('👶 Помог ребёнку! +10 QRNC')">
+    <div class="fund-ico">👶</div><div><h4>Помочь ребёнку</h4><p>Забота о будущем поколении</p><div class="qrt-reward">+10 QRNC</div></div>
+  </div>
+  <div class="fund-item" onclick="doFund('♻️ Очистил природу! +6 QRNC')">
+    <div class="fund-ico">♻️</div><div><h4>Очистить природу</h4><p>Уборка территории</p><div class="qrt-reward">+6 QRNC</div></div>
+  </div>
+  <div class="fund-item" onclick="doFund('🎓 Передал опыт! +7 QRNC')">
+    <div class="fund-ico">🎓</div><div><h4>Передать опыт</h4><p>Менторство и наставничество</p><div class="qrt-reward">+7 QRNC</div></div>
+  </div>
+  <div class="fund-item" onclick="doFund('🔬 Поддержал науку! +12 QRNC')">
+    <div class="fund-ico">🔬</div><div><h4>Поддержать науку</h4><p>Вклад в исследования</p><div class="qrt-reward">+12 QRNC</div></div>
+  </div>
+  <div class="fund-item" onclick="doFund('💧 Сохранил воду! +5 QRNC')">
+    <div class="fund-ico">💧</div><div><h4>Сохранить воду</h4><p>Экономия водных ресурсов</p><div class="qrt-reward">+5 QRNC</div></div>
+  </div>
+  <div class="fund-item" onclick="doFund('🏥 Помог больному! +15 QRNC')">
+    <div class="fund-ico">🏥</div><div><h4>Помочь больному</h4><p>Медицинская и моральная помощь</p><div class="qrt-reward">+15 QRNC</div></div>
+  </div>
+</div></div>
+
+<div id="modal-apps" class="modal" onclick="C('modal-apps')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">Apps & Programs</div>
+    <div class="app-grid">
+      <a href="https://wa.me/" class="app-item" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="">WhatsApp</a>
+      <a href="https://t.me/" class="app-item" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="">Telegram</a>
+      <a href="https://youtube.com" class="app-item" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="">YouTube</a>
+      <a href="https://instagram.com" class="app-item" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="">Instagram</a>
+      <a href="https://google.com" class="app-item" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="">Google</a>
+      <div class="app-item" onclick="T('🚧 Скоро')"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828961.png" alt="">Ещё</div>
+    </div>
+    <div class="modal-close" onclick="C('modal-apps')">Закрыть</div>
+  </div>
+</div>
+
+<div id="modal-qr" class="modal" onclick="C('modal-qr')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">Мой QR код</div>
+    <div style="text-align:center">
+      <img id="qr-img" src="" style="width:170px;height:170px;border-radius:12px" alt="QR">
+      <p id="qr-txt" style="margin-top:10px;font-size:11px;color:#888;font-family:monospace">—</p>
+    </div>
+    <div class="modal-close" onclick="C('modal-qr')">Закрыть</div>
+  </div>
+</div>
+
+<div id="modal-scan" class="modal" onclick="stopQRScan()">
+  <div style="text-align:center" onclick="event.stopPropagation()">
+    <div class="qr-scan-wrap">
+      <video id="qr-video" autoplay playsinline muted></video>
+      <div class="qr-overlay"><div class="qr-scan-line"></div></div>
+    </div>
+    <canvas id="qr-canvas" style="display:none"></canvas>
+    <p style="color:#fff;margin-top:14px;font-size:13px">Наведите на QR код</p>
+    <p style="color:#888;margin-top:10px;cursor:pointer;font-size:13px" onclick="stopQRScan()">Отмена</p>
+  </div>
+</div>
+
+<div id="modal-chip-info" class="modal" onclick="C('modal-chip-info')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="chip-info-card">
+      <div style="font-size:36px;margin-bottom:10px">💍</div>
+      <h3>BSMLH CHIP</h3>
+      <p>Защита нового поколения.<br>Биометрическая идентификация через физический носитель.<br>Ваши данные зашифрованы и защищены.</p>
+    </div>
+    <div style="font-size:13px;color:#333;text-align:center" id="chip-info-status">Статус: загрузка...</div>
+    <div class="modal-close" onclick="C('modal-chip-info')">Закрыть</div>
+  </div>
+</div>
+
+<div id="chip-scan-overlay" class="chip-scan-overlay">
+  <div class="chip-scan-ring">
+    <img src="chip.png" alt="BSMLH CHIP">
+    <div class="scan-frame">
+      <div class="scan-beam active" id="pat-beam"></div>
+    </div>
+  </div>
+  <div id="patent-chip-status" style="font-size:15px;color:var(--gold);margin-bottom:8px;text-align:center">Сканирование чипа...</div>
+  <div id="patent-chip-sub" style="font-size:12px;color:#888;text-align:center;max-width:250px">Поднесите BSMLH CHIP к телефону</div>
+</div>
+
+<div id="cert-page">
+  <div class="cert-header">
+    <div class="cert-logo">🛡️</div>
+    <div class="cert-title">BSMLH</div>
+    <div class="cert-subtitle">СЕРТИФИКАТ АВТОРСКОГО ПРИОРИТЕТА</div>
+  </div>
+  <div class="cert-field"><label>Автор</label><p id="cert-author">—</p></div>
+  <div class="cert-field"><label>HUID</label><p class="mono" id="cert-huid">—</p></div>
+  <div class="cert-field"><label>Изобретение</label><p id="cert-title-txt">—</p></div>
+  <div class="cert-field"><label>Описание</label><p id="cert-desc">—</p></div>
+  <div class="cert-field"><label>Ниша</label><p id="cert-niche">—</p></div>
+  <div class="cert-field"><label>Уровень защиты</label><p id="cert-level">—</p></div>
+  <div class="cert-field"><label>ID изобретения</label><p class="mono" id="cert-inv-id">—</p></div>
+  <div class="cert-field"><label>Timestamp</label><p class="mono" id="cert-time">—</p></div>
+  <div class="cert-qr"><img id="cert-qr-img" src="" style="width:150px;height:150px;border-radius:10px" alt="QR"></div>
+  <div class="cert-footer">
+    Настоящий сертификат подтверждает факт фиксации авторского приоритета в системе BSMLH — Biometric Security Multifunction Ledger for Humanity. Данные зафиксированы с применением биометрической идентификации и криптографической защиты. Дата и время фиксации являются юридически значимым доказательством приоритета.
+    <div class="cert-stamp">✓ BSMLH VERIFIED</div>
+  </div>
+  <button class="cert-btn" onclick="window.print()">💾 Сохранить как PDF</button>
+  <button class="cert-close" onclick="document.getElementById('cert-page').style.display='none'">← Назад</button>
+</div>
+
+<div id="toast"></div>
+
+<script src="app2.js"></script>
+
+</body>
+</html>
