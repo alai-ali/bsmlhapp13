@@ -10,16 +10,16 @@ var nameVal=document.getElementById(‘in-f’).value.trim();
 if(!nameVal){alert(‘Введите имя’);return;}
 U.name=nameVal;
 document.getElementById(‘scr-reg’).classList.remove(‘active’);
-if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
 document.getElementById(‘scr-scan’).classList.add(‘active’);
-var camTimer=setTimeout(function(){
+var ct=setTimeout(function(){
 document.getElementById(‘scr-scan’).classList.remove(‘active’);
 document.getElementById(‘scr-chip’).classList.add(‘active’);
 },3000);
-navigator.mediaDevices.getUserMedia({video:{facingMode:“user”}})
-.then(function(s){clearTimeout(camTimer);document.getElementById(‘video-feed’).srcObject=s;})
-.catch(function(){clearTimeout(camTimer);document.getElementById(‘scr-scan’).classList.remove(‘active’);document.getElementById(‘scr-chip’).classList.add(‘active’);});
-} else {
+navigator.mediaDevices.getUserMedia({video:{facingMode:‘user’}})
+.then(function(s){clearTimeout(ct);document.getElementById(‘video-feed’).srcObject=s;})
+.catch(function(){clearTimeout(ct);document.getElementById(‘scr-scan’).classList.remove(‘active’);document.getElementById(‘scr-chip’).classList.add(‘active’);});
+}else{
 document.getElementById(‘scr-chip’).classList.add(‘active’);
 }
 }
@@ -170,7 +170,7 @@ var d=[{n:‘Alex Chen’,a:‘🤖’,m:‘Secure connection active’,t:‘14:
 document.getElementById(‘view-chat’).innerHTML=d.map(x=>`<div class="chat-item" onclick="T('💬 ${x.n}')"><div class="chat-av">${x.a}</div><div style="flex:1"><div style="display:flex;justify-content:space-between"><span style="font-weight:500;font-size:15px">${x.n}</span><span style="font-size:11px;color:#bbb">${x.t}</span></div><div style="font-size:13px;color:#bbb">${x.m}</div></div></div>`).join(’’);
 }
 
-// ПАТЕНТ - попытка фиксации
+// ПАТЕНТ – попытка фиксации
 async function tryFixInv(){
 var t=document.getElementById(‘inv-t’).value.trim();
 var n=document.getElementById(‘inv-niche’).value;
@@ -254,9 +254,9 @@ function showCert(inv){
 document.getElementById(‘cert-author’).innerText=U.name;
 document.getElementById(‘cert-huid’).innerText=U.huid;
 document.getElementById(‘cert-title-txt’).innerText=inv.t;
-document.getElementById(‘cert-desc’).innerText=inv.desc||’-’;
+document.getElementById(‘cert-desc’).innerText=inv.desc||’–’;
 document.getElementById(‘cert-niche’).innerText=inv.niche;
-document.getElementById(‘cert-level’).innerText=‘Level ‘+inv.lv+’ - ‘+[‘Timestamp $0.99’,‘Prior Art $9.99’,‘Certificate $49.99’][inv.lv-1];
+document.getElementById(‘cert-level’).innerText=‘Level ‘+inv.lv+’ – ‘+[‘Timestamp $0.99’,‘Prior Art $9.99’,‘Certificate $49.99’][inv.lv-1];
 document.getElementById(‘cert-inv-id’).innerText=inv.id;
 document.getElementById(‘cert-time’).innerText=inv.date;
 var qd=encodeURIComponent(‘BSMLH-CERT:’+inv.id+’:’+U.huid);
