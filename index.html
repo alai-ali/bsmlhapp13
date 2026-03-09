@@ -28,11 +28,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 @keyframes ptFly{0%{transform:translateY(100vh);opacity:0}10%{opacity:0.7}90%{opacity:0.3}100%{transform:translateY(-10px);opacity:0}}
 
 /* ═══ ОНБОРДИНГ ═══ */
-.scr{position:fixed;inset:0;z-index:9500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 30px;background:#050508;visibility:hidden;opacity:0;pointer-events:none}
+.scr{position:fixed;inset:0;z-index:9500;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 30px;background:#050508}
 .scr::before,.scr::after{content:'';position:absolute;width:36px;height:36px;border-color:rgba(0,242,255,.2);border-style:solid}
 .scr::before{top:max(16px,var(--safe-top));left:16px;border-width:1px 0 0 1px}
 .scr::after{bottom:max(16px,var(--safe-bot));right:16px;border-width:0 1px 1px 0}
-.scr.on{visibility:visible;opacity:1;transform:none;pointer-events:auto}
+.scr.on{display:flex}
 .scr.out{opacity:0;opacity:0}
 .steps{display:flex;gap:6px;margin-bottom:28px}
 .step{width:6px;height:6px;border-radius:50%;background:var(--text3);transition:all .3s}
@@ -555,7 +555,7 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
   </div>
   <div class="steps"><div class="step on"></div><div class="step"></div><div class="step"></div></div>
   <div class="onb-tag">STEP 01 // IDENTITY</div>
-  <div class="onb-h" id="onb-h1">ВВЕДИТЕ ИМЯ</div>
+  <div class="onb-h" id="onb-h1">BSMLH</div>
   <div class="onb-p">Создайте цифровую личность защищённую биометрией и NFC</div>
   <input class="inp" id="inp-name" placeholder="Ваше имя..." autocomplete="off">
   <button class="btn" onclick="step1Next()">ПРОДОЛЖИТЬ ›</button>
@@ -1299,17 +1299,8 @@ function step1Next(){
   var n=el('inp-name').value.trim();
   if(!n){T('⚠️ ВВЕДИТЕ ИМЯ');return;}
   U.name=n;
-  var s=el('s1');s.classList.remove('on');s.classList.add('out');
-  setTimeout(function(){s.classList.remove('out');},400);
-  if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
-    el('s2').classList.add('on');
-    var ct=setTimeout(function(){el('s2').classList.remove('on');el('s3').classList.add('on');},3500);
-    navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}})
-      .then(function(s){clearTimeout(ct);el('vid').srcObject=s;})
-      .catch(function(){clearTimeout(ct);el('s2').classList.remove('on');el('s3').classList.add('on');});
-  } else {
-    el('s3').classList.add('on');
-  }
+  el('s1').classList.remove('on');
+  el('s3').classList.add('on');
 }
 function takePhoto(){
   var v=el('vid'),c=el('cv');
