@@ -1263,7 +1263,12 @@ var _tt=null;
 
 // ── UTILS ──
 function el(id){return document.getElementById(id);}
-function set(id,v){var e=el(id);if(e)e.innerText=v;}
+
+function showScr(id){
+  document.querySelectorAll('.scr').forEach(function(s){s.style.display='none';});
+  var s=document.getElementById(id);
+  if(s){s.style.display='flex';}
+}function set(id,v){var e=el(id);if(e)e.innerText=v;}
 function T(msg){
   clearTimeout(_tt);var t=el('toast');
   t.innerText=msg;t.classList.add('show');
@@ -1299,8 +1304,9 @@ function step1Next(){
   var n=el('inp-name').value.trim();
   if(!n){T('⚠️ ВВЕДИТЕ ИМЯ');return;}
   U.name=n;
-  el('s1').classList.remove('on');
-  el('s3').classList.add('on');
+  var s1=el('s1'),s3=el('s3');
+  if(s1)s1.style.display='none';
+  if(s3){s3.style.display='flex';s3.style.flexDirection='column';s3.style.alignItems='center';s3.style.justifyContent='center';}
 }
 function takePhoto(){
   var v=el('vid'),c=el('cv');
@@ -1309,12 +1315,12 @@ function takePhoto(){
   c.getContext('2d').drawImage(v,0,0);
   U.photo=c.toDataURL('image/jpeg',0.7);
   if(v.srcObject)v.srcObject.getTracks().forEach(function(t){t.stop();});
-  el('s2').classList.remove('on');el('s3').classList.add('on');
+  showScr('s3');
 }
 function skipCam(){
   var v=el('vid');
   if(v.srcObject)v.srcObject.getTracks().forEach(function(t){t.stop();});
-  el('s2').classList.remove('on');el('s3').classList.add('on');
+  showScr('s3');
 }
 
 // ── NFC ──
@@ -1362,7 +1368,7 @@ function refreshChipUI(){
   var cv=el('chip-set-val');if(cv){cv.innerText=U.hasChip?'Активен':'Не активен';cv.className='mi-val'+(U.hasChip?' g':' r');}
   set('chip-info','Статус: '+(U.hasChip?'✅ Активен':'❌ Не активен'));
 }
-function showSMS(){el('s3').classList.remove('on');el('s4').classList.add('on');}
+function showSMS(){showScr('s4');}
 function sendSMS(){
   var phone=el('sms-phone').value.trim();
   if(!phone){T('⚠️ ВВЕДИТЕ НОМЕР');return;}
@@ -1437,7 +1443,7 @@ function toApp(){
 function exitApp(){
   el('app').className='';el('alai-fab').style.display='none';
   document.querySelectorAll('.scr').forEach(function(s){s.style.display='';s.classList.remove('on','out');});
-  el('s1').classList.add('on');
+  el('s1').style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;';
   el('inp-name').value='';el('ss1').style.display='block';el('ss2').style.display='none';
   var nb=el('nbtn1');if(nb){nb.disabled=false;nb.innerText='🛡️ АКТИВИРОВАТЬ ЧИП';}
   set('nst1','');
